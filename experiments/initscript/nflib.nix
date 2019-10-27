@@ -48,7 +48,7 @@ let
 			builtins.replaceStrings tokens newTokens str;
 in
 {
-	task = {inputVars, outputVars, command}: rec {
+	mkTask = {inputVars, outputVars, command}: rec {
 		cwlVersion = "v1.0";
 		class = "CommandLineTool";
 		baseCommand = [ "bash" script ];
