@@ -12,19 +12,19 @@ let
 	
 	# vars is a set of variables and list containing type and glob
 	# e.g. { outfile = ["File" "$(inputs.outfname)"], outval = "string" }
-	mkOutputAttrs = vars:
+	mkOutputAttrs = inVars: outVars:
 		let
 			f = attr: {
 				name = attr;
 				value =
 					let
-						x = builtins.getAttr attr vars;
+						x = builtins.getAttr attr outVars;
 					in
 						if builtins.isList x
 						then rec {
 							type = builtins.elemAt x 0;
 							outputBinding = {
-								glob = builtins.elemAt x 1;
+								glob = interpolate (builtins.elemAt x 1) inVars;
 								#loadContents = (type != "File");
 								#outputEval = if type == "File" then null else "$(self[0].contents)";
 							};
@@ -32,7 +32,7 @@ let
 						else { type = x; }
 					;
 			};
-			pairs = map f (builtins.attrNames vars);
+			pairs = map f (builtins.attrNames outVars);
 		in builtins.listToAttrs pairs;
 	script = "script.sh";
 	interpolate = str: vars:
@@ -53,7 +53,7 @@ in
 		class = "CommandLineTool";
 		baseCommand = [ "bash" script ];
 		inputs = mkInputAttrs inputVars;
-		outputs = mkOutputAttrs outputVars;
+		outputs = mkOutputAttrs inputVars outputVars;
 		requirements = {
 			InitialWorkDirRequirement.listing = [
 				{

@@ -7,7 +7,7 @@ mkWorkflow {
 		outfname = "string";
 	};
 	outputVars = {
-		outfile = ["File" "$(inputs.outfname)"];
+		outfile = ["File" "{outfname}"];
 	};
 	command = ''
 		cat {infile} |
