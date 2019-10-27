@@ -10,7 +10,7 @@ mkWorkflow {
 		outfile = ["File" "$(inputs.outfname)"];
 	};
 	command = ''
-		cat $(inputs.infile.path) |
-		tr $(inputs.from_chars) $(inputs.to_chars) > $(inputs.outfname)
+		cat {infile} |
+		tr {from_chars} {to_chars} > {outfname}
 	'';
 }

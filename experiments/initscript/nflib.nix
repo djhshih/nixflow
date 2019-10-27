@@ -35,6 +35,17 @@ let
 			pairs = map f (builtins.attrNames vars);
 		in builtins.listToAttrs pairs;
 	script = "script.sh";
+	interpolate = str: vars:
+		let
+			varNames = (builtins.attrNames vars);
+			tokens = map (x: "{${x}}") varNames;
+			f = var:
+				if builtins.getAttr var vars == "File"
+				then "$(inputs.${var}.path)"
+				else "$(inputs.${var})";
+			newTokens = map f varNames;
+		in
+			builtins.replaceStrings tokens newTokens str;
 in
 {
 	mkWorkflow = {inputVars, outputVars, command}: rec {
@@ -47,7 +58,7 @@ in
 			InitialWorkDirRequirement.listing = [
 				{
 					entryname = script;
-					entry = command;
+					entry = interpolate command inputVars;
 				}
 			];
 		};
