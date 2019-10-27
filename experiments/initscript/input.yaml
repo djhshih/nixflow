@@ -1,0 +1,6 @@
+infile:
+    class: File
+    path: input.txt
+from_chars: a-z
+to_chars: A-Z
+outfname: output_initscript.txt
