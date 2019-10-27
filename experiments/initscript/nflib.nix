@@ -48,7 +48,7 @@ let
 			builtins.replaceStrings tokens newTokens str;
 in
 {
-	mkWorkflow = {inputVars, outputVars, command}: rec {
+	task = {inputVars, outputVars, command}: rec {
 		cwlVersion = "v1.0";
 		class = "CommandLineTool";
 		baseCommand = [ "bash" script ];

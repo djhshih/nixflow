@@ -1,5 +1,5 @@
 with (import ./nflib.nix);
-mkTask {
+task {
 	inputVars = {
 		infile = "File";
 		from_chars = "string";

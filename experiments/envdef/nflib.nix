@@ -41,7 +41,7 @@ let
 		in builtins.listToAttrs pairs;
 in
 {
-	mkTask = {inputVars, outputVars}: rec {
+	task = {inputVars, outputVars}: rec {
 		cwlVersion = "v1.0";
 		class = "CommandLineTool";
 		baseCommand = "bash";
