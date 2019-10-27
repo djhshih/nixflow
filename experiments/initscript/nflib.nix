@@ -48,17 +48,17 @@ let
 			builtins.replaceStrings tokens newTokens str;
 in
 {
-	mkTask = {inputVars, outputVars, command}: rec {
+	mkTask = { variables, command }: rec {
 		cwlVersion = "v1.0";
 		class = "CommandLineTool";
 		baseCommand = [ "bash" script ];
-		inputs = mkInputAttrs inputVars;
-		outputs = mkOutputAttrs inputVars outputVars;
+		inputs = mkInputAttrs variables.inputs;
+		outputs = mkOutputAttrs variables.inputs variables.outputs;
 		requirements = {
 			InitialWorkDirRequirement.listing = [
 				{
 					entryname = script;
-					entry = interpolate command inputVars;
+					entry = interpolate command variables.inputs;
 				}
 			];
 		};
