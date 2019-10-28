@@ -34,7 +34,8 @@ let
 			};
 			pairs = map f (builtins.attrNames outVars);
 		in builtins.listToAttrs pairs;
-	script = "script.sh";
+
+
 	interpolate = str: vars:
 		let
 			varNames = (builtins.attrNames vars);
@@ -46,21 +47,28 @@ let
 			newTokens = map f varNames;
 		in
 			builtins.replaceStrings tokens newTokens str;
+
+	script = "script.sh";
+
+	cwlVersion = "v1.0";
+
 in
 {
-	mkTask = { variables, command }: rec {
-		cwlVersion = "v1.0";
-		class = "CommandLineTool";
-		baseCommand = [ "bash" script ];
-		inputs = mkInputAttrs variables.inputs;
-		outputs = mkOutputAttrs variables.inputs variables.outputs;
-		requirements = {
-			InitialWorkDirRequirement.listing = [
-				{
-					entryname = script;
-					entry = interpolate command variables.inputs;
-				}
-			];
+	mkTask = { inputs, outputs, command }: {
+		cwl = {
+			inherit cwlVersion;
+			class = "CommandLineTool";
+			baseCommand = [ "bash" script ];
+			inputs = mkInputAttrs inputs;
+			outputs = mkOutputAttrs inputs outputs;
+			requirements = {
+				InitialWorkDirRequirement.listing = [
+					{
+						entryname = script;
+						entry = interpolate command inputs;
+					}
+				];
+			};
 		};
 	};
 }

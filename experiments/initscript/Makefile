@@ -1,6 +1,9 @@
 
-all: nix.cwl
+all: toupper.cwl caesar.cwl
 	
 
-nix.cwl: task.nix nflib.nix
-	nix-instantiate --eval --json --strict --expr '(import ./task.nix) { lib = import ./nflib.nix; }' | jq . > $@
+toupper.cwl: toupper.nix nflib.nix
+	./task.sh toupper > $@
+
+caesar.cwl: caesar.nix nflib.nix
+	./task.sh caesar > $@
