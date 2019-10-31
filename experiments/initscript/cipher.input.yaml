@@ -1,0 +1,8 @@
+infile:
+    class: File
+    path: input.txt
+from_chars: a-z
+to_chars: A-Z
+toupper_outfname: output_toupper.txt
+caesar_outfname: output_caesar.txt
+caesar_caesar_outfname: output_caesar_caesar.txt

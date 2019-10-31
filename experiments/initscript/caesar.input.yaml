@@ -1,0 +1,6 @@
+infile:
+    class: File
+    path: output_initscript.txt
+from_chars: a-z
+to_chars: A-Z
+outfname: output_caesar.txt

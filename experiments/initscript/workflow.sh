@@ -4,10 +4,10 @@ set -euo pipefail
 
 if [[ $# < 1 ]]; then
 	nix-instantiate --eval --json --strict --expr \
-		"let ts = import ./tasks.nix; in builtins.attrNames ts" |
+		"let ws = import ./workflows.nix; in builtins.attrNames ws" |
 		jq -r '.[]'
 else
 	nix-instantiate --eval --json --strict --expr \
-		"let ts = import ./tasks.nix; in ts.$1.cwl" |
+		"let ws = import ./workflows.nix; in ws.$1.cwl" |
 		jq .
 fi

@@ -35,6 +35,55 @@ let
 			pairs = map f (builtins.attrNames outVars);
 		in builtins.listToAttrs pairs;
 
+	mkWorkflowInputAttrs = mkInputAttrs;
+
+	variablePath = str: builtins.replaceStrings ["."] ["/"] str;
+
+	mkWorkflowOutputAttrs = outVars:
+		let
+			f = attr: {
+				name = attr;
+				value =
+					let
+						x = builtins.getAttr attr outVars;
+					in
+						if builtins.isList x
+						then {
+							type = builtins.elemAt x 0;
+							outputSource = variablePath (builtins.elemAt x 1);
+						}
+						else { type = x; }
+					;
+			};
+			pairs = map f (builtins.attrNames outVars);
+		in builtins.listToAttrs pairs;
+
+	linkSteps = steps: depends:
+		let
+			f = stepName: {
+				name = stepName;
+				value =
+					let
+						step = builtins.getAttr stepName steps;
+						taskName = step.task;
+						task = builtins.getAttr taskName depends;
+					in
+						{
+							run = "${taskName}.cwl";
+							"in" =
+								let
+									h = var: {
+										name =  var;
+										value = variablePath (builtins.getAttr var step.inputs);
+									};
+									pairs = map h (builtins.attrNames step.inputs);
+								in builtins.listToAttrs pairs;
+							out = builtins.attrNames task.cwl.outputs;
+						}
+					;
+			};
+			pairs = map f (builtins.attrNames steps);
+		in builtins.listToAttrs pairs;
 
 	interpolate = str: vars:
 		let
@@ -69,6 +118,16 @@ in
 					}
 				];
 			};
+		};
+	};
+
+	mkWorkflow = { inputs, outputs, depends, steps }: {
+		cwl = {
+			inherit cwlVersion;
+			class = "Workflow";
+			inputs = mkWorkflowInputAttrs inputs;
+			outputs = mkWorkflowOutputAttrs outputs;
+			steps = linkSteps steps depends;
 		};
 	};
 }
