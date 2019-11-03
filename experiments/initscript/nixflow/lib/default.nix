@@ -1,14 +1,16 @@
 let
+	bns = builtins;
+
 	# vars is a set of variables and their types
 	# e.g. { infile = "File"; a = "string"; b = "int"; }
 	mkInputAttrs = vars:
 		let
 			f = attr: {
 				name = attr;
-				value = { type = builtins.getAttr attr vars; };
+				value = { type = bns.getAttr attr vars; };
 			};
-			pairs = map f (builtins.attrNames vars);
-		in (builtins.listToAttrs pairs);
+			pairs = map f (bns.attrNames vars);
+		in (bns.listToAttrs pairs);
 	
 	# vars is a set of variables and list containing type and glob
 	# e.g. { outfile = ["File" "$(inputs.outfname)"], outval = "string" }
@@ -18,13 +20,13 @@ let
 				name = attr;
 				value =
 					let
-						x = builtins.getAttr attr outVars;
+						x = bns.getAttr attr outVars;
 					in
-						if builtins.isList x
+						if bns.isList x
 						then rec {
-							type = builtins.elemAt x 0;
+							type = bns.elemAt x 0;
 							outputBinding = {
-								glob = interpolate (builtins.elemAt x 1) inVars;
+								glob = interpolate (bns.elemAt x 1) inVars;
 								#loadContents = (type != "File");
 								#outputEval = if type == "File" then null else "$(self[0].contents)";
 							};
@@ -32,12 +34,12 @@ let
 						else { type = x; }
 					;
 			};
-			pairs = map f (builtins.attrNames outVars);
-		in builtins.listToAttrs pairs;
+			pairs = map f (bns.attrNames outVars);
+		in bns.listToAttrs pairs;
 
 	mkWorkflowInputAttrs = mkInputAttrs;
 
-	variablePath = str: builtins.replaceStrings ["."] ["/"] str;
+	variablePath = str: bns.replaceStrings ["."] ["/"] str;
 
 	mkWorkflowOutputAttrs = outVars:
 		let
@@ -45,18 +47,18 @@ let
 				name = attr;
 				value =
 					let
-						x = builtins.getAttr attr outVars;
+						x = bns.getAttr attr outVars;
 					in
-						if builtins.isList x
+						if bns.isList x
 						then {
-							type = builtins.elemAt x 0;
-							outputSource = variablePath (builtins.elemAt x 1);
+							type = bns.elemAt x 0;
+							outputSource = variablePath (bns.elemAt x 1);
 						}
 						else { type = x; }
 					;
 			};
-			pairs = map f (builtins.attrNames outVars);
-		in builtins.listToAttrs pairs;
+			pairs = map f (bns.attrNames outVars);
+		in bns.listToAttrs pairs;
 
 	linkSteps = steps: depends:
 		let
@@ -64,9 +66,9 @@ let
 				name = stepName;
 				value =
 					let
-						step = builtins.getAttr stepName steps;
+						step = bns.getAttr stepName steps;
 						taskName = step.task;
-						task = builtins.getAttr taskName depends;
+						task = bns.getAttr taskName depends;
 					in
 						{
 							run = "${taskName}.cwl";
@@ -74,28 +76,28 @@ let
 								let
 									h = var: {
 										name =  var;
-										value = variablePath (builtins.getAttr var step.inputs);
+										value = variablePath (bns.getAttr var step.inputs);
 									};
-									pairs = map h (builtins.attrNames step.inputs);
-								in builtins.listToAttrs pairs;
-							out = builtins.attrNames task.cwl.outputs;
+									pairs = map h (bns.attrNames step.inputs);
+								in bns.listToAttrs pairs;
+							out = bns.attrNames task.cwl.outputs;
 						}
 					;
 			};
-			pairs = map f (builtins.attrNames steps);
-		in builtins.listToAttrs pairs;
+			pairs = map f (bns.attrNames steps);
+		in bns.listToAttrs pairs;
 
 	interpolate = str: vars:
 		let
-			varNames = (builtins.attrNames vars);
+			varNames = (bns.attrNames vars);
 			tokens = map (x: "{${x}}") varNames;
 			f = var:
-				if builtins.getAttr var vars == "File"
+				if bns.getAttr var vars == "File"
 				then "$(inputs.${var}.path)"
 				else "$(inputs.${var})";
 			newTokens = map f varNames;
 		in
-			builtins.replaceStrings tokens newTokens str;
+			bns.replaceStrings tokens newTokens str;
 
 	script = "script.sh";
 
@@ -104,10 +106,9 @@ let
 in
 {
 	callDefWith = defaults: fp: args:
-		with builtins;
 		let
-			f = if isFunction fp then fp else import fp;
-			auto = intersectAttrs (functionArgs f) defaults;
+			f = if bns.isFunction fp then fp else import fp;
+			auto = bns.intersectAttrs (bns.functionArgs f) defaults;
 		in f (auto // args);
 
 	mkTask = { inputs, outputs, command }: {
