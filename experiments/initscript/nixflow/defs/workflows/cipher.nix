@@ -1,6 +1,8 @@
 { lib, toupper, caesar }:
 
 lib.mkWorkflow {
+	name = "cipher";
+
 	# TODO populate inputs automatically by searching
 	#      for unfulfilled inputs to tasks
 	inputs = {
@@ -17,7 +19,7 @@ lib.mkWorkflow {
 		decrypted = ["File" "caesar2.outfile"];
 	};
 
-	depends = { inherit toupper caesar; };
+	depends = [ toupper caesar ];
 
 	# specify variable bindings from one task to another
 	steps = {

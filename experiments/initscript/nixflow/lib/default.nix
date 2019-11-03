@@ -68,7 +68,9 @@ let
 					let
 						step = bns.getAttr stepName steps;
 						taskName = step.task;
-						task = bns.getAttr taskName depends;
+						tasks = bns.filter (x: x.name == taskName) depends;
+						task = if bns.length tasks > 0 then bns.elemAt tasks 0
+							else abort "Dependency ${taskName} is missing";
 					in
 						{
 							run = "${taskName}.cwl";
@@ -104,14 +106,15 @@ let
 	cwlVersion = "v1.0";
 
 in
-{
+rec {
 	callDefWith = defaults: fp: args:
 		let
 			f = if bns.isFunction fp then fp else import fp;
 			auto = bns.intersectAttrs (bns.functionArgs f) defaults;
 		in f (auto // args);
 
-	mkTask = { inputs, outputs, command }: {
+	mkTask = { name, inputs, outputs, command }: {
+		inherit name;
 		type = "task";
 		cwl = {
 			inherit cwlVersion;
@@ -130,11 +133,20 @@ in
 		};
 	};
 
-	mkWorkflow = { inputs, outputs, depends, steps }: {
+	isTask = x: x.type == "task";
+
+	isWorkflow = x: x.type == "workflow";
+
+	mkWorkflow = { name, inputs, outputs, depends, steps }: {
+		inherit name;
 		type = "workflow";
+		inherit depends;
 		cwl = {
 			inherit cwlVersion;
 			class = "Workflow";
+			requirements = if bns.any isWorkflow depends
+				then { SubworkflowFeatureRequirement = {}; }
+				else {};
 			inputs = mkWorkflowInputAttrs inputs;
 			outputs = mkWorkflowOutputAttrs outputs;
 			steps = linkSteps steps depends;

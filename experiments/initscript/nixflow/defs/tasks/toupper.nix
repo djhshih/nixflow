@@ -1,6 +1,7 @@
 { lib }:
 
 lib.mkTask {
+	name = "toupper";
 	inputs = {
 		infile = "File";
 		from_chars = "string";

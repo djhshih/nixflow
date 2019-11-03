@@ -1,6 +1,7 @@
 { lib }:
 
 lib.mkTask {
+	name = "caesar";
 	inputs = {
 		infile = "File";
 		#from_chars = "string";
