@@ -103,7 +103,15 @@ let
 
 in
 {
+	callDefWith = defaults: fp: args:
+		with builtins;
+		let
+			f = if isFunction fp then fp else import fp;
+			auto = intersectAttrs (functionArgs f) defaults;
+		in f (auto // args);
+
 	mkTask = { inputs, outputs, command }: {
+		type = "task";
 		cwl = {
 			inherit cwlVersion;
 			class = "CommandLineTool";
@@ -122,6 +130,7 @@ in
 	};
 
 	mkWorkflow = { inputs, outputs, depends, steps }: {
+		type = "workflow";
 		cwl = {
 			inherit cwlVersion;
 			class = "Workflow";
