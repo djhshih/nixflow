@@ -101,6 +101,12 @@ let
 		in
 			bns.replaceStrings tokens newTokens str;
 
+	makeOverridable = f: args0:
+		let
+			res0 = f args0;
+		in
+			res0 // { override = args: makeOverridable f (args0 // args); };
+
 	script = "script.sh";
 
 	cwlVersion = "v1.0";
@@ -111,7 +117,7 @@ rec {
 		let
 			f = if bns.isFunction fp then fp else import fp;
 			auto = bns.intersectAttrs (bns.functionArgs f) defaults;
-		in f (auto // args);
+		in makeOverridable f (auto // args);
 
 	mkTask = { name, inputs, outputs, command }: {
 		inherit name;
