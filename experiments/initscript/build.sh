@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Build CWL files.
+
 set -euo pipefail
 
 if [[ $# < 1 ]]; then
@@ -13,12 +15,13 @@ if [[ "$type" != "task" && "$type" != "workflow" ]]; then
 	exit 1
 fi
 
+instantiate="nix-instantiate --eval --json --strict --expr"
+main="(import ./nixflow/defs/top-level)"
+
 if [[ $# < 2 ]]; then
-	nix-instantiate --eval --json --strict --expr \
-		"let d = import ./nixflow/defs/top-level; in builtins.attrNames d.${type}s" |
+	$instantiate "builtins.attrNames ${main}.${type}s" |
 		jq -r '.[]'
 else
-	nix-instantiate --eval --json --strict --expr \
-		"let d = import ./nixflow/defs/top-level; in d.${type}s.$2.cwl" |
+	$instantiate "${main}.${type}s.$2.cwl" |
 		jq .
 fi
