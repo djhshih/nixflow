@@ -5,4 +5,5 @@ let
 in
 {
 	inherit tasks workflows;
+	all = tasks // workflows;
 }

@@ -15,13 +15,30 @@ if [[ "$type" != "task" && "$type" != "workflow" ]]; then
 	exit 1
 fi
 
-instantiate="nix-instantiate --eval --json --strict --expr"
-main="(import ./nixflow/defs/top-level)"
+nix="nix-instantiate --eval --json --strict --expr"
+root="(import ./nixflow/defs/top-level)"
 
 if [[ $# < 2 ]]; then
-	$instantiate "builtins.attrNames ${main}.${type}s" |
-		jq -r '.[]'
+	$nix "builtins.attrNames ${root}.${type}s" | jq -r '.[]'
 else
-	$instantiate "${main}.${type}s.$2.cwl" |
-		jq .
+	def=$2
+
+	# build dependencies
+	if [[ "$type" == "workflow" ]]; then
+		depends=$($nix "map (x: x.name) ${root}.${type}s.${def}.depends" | jq -r '.[]')
+		for d in $depends; do
+			# TODO write to better location
+			out=$d.cwl
+			if [[ ! -f $out ]]; then
+				echo "Building $d ... "
+				$nix "${root}.all.$d.cwl" | jq . > $out
+			fi
+		done
+	fi
+
+	# build target
+	echo "Building $def ... "
+	# TODO write to better location
+	out=${def}.cwl
+	$nix "${root}.${type}s.${def}.cwl" | jq . > $out
 fi
