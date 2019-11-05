@@ -31,26 +31,22 @@ list_defs() {
 }
 
 build_workflow() {
-	local def=$1
-	local deftype=$($nix "${root}.all.${def}.type" | jq -r .)
-
+	local ldef=$1
+	local ldeftype=$($nix "${root}.all.${ldef}.type" | jq -r .)
 	# TODO write to better location
-	target=${def}.cwl	
+	local target=${ldef}.cwl
 
 	if [[ ! -f $target ]]; then
-		# local variables will be overwritten in recursive call (quirk of Bash)
-		# therefore, we need to build the target now
-		# ideally, we would build the target last
-		echo "Building $target ... "
-		$nix "${root}.${deftype}s.${def}.cwl" | jq . > $target
-
 		# workflows can have dependencies: build them
-		if [[ "$deftype" == "workflow" ]]; then
-			depends=$($nix "map (x: x.name) ${root}.${deftype}s.${def}.depends" | jq -r '.[]')
+		if [[ "$ldeftype" == "workflow" ]]; then
+			depends=$($nix "map (x: x.name) ${root}.${ldeftype}s.${ldef}.depends" | jq -r '.[]')
 			for d in $depends; do
 				build_workflow $d 
 			done
 		fi
+
+		echo "Building $target ... "
+		$nix "${root}.${ldeftype}s.${ldef}.cwl" | jq . > $target
 	fi
 }
 
