@@ -9,36 +9,54 @@ if [[ $# < 1 ]]; then
 	exit 1
 fi
 
-type=$1
-if [[ "$type" != "task" && "$type" != "workflow" ]]; then
-	echo "Input error: we got $type but expect task or workflow"
+deftype=$1
+
+if [[ "$deftype" != "task" && "$deftype" != "workflow" ]]; then
+	echo "Input error: we got $deftype but expect task or workflow"
 	exit 1
 fi
 
-nix="nix-instantiate --eval --json --strict --expr"
-root="(import ./nixflow/defs/top-level)"
-
 if [[ $# < 2 ]]; then
-	$nix "builtins.attrNames ${root}.${type}s" | jq -r '.[]'
+	def=''
 else
 	def=$2
-
-	# build dependencies
-	if [[ "$type" == "workflow" ]]; then
-		depends=$($nix "map (x: x.name) ${root}.${type}s.${def}.depends" | jq -r '.[]')
-		for d in $depends; do
-			# TODO write to better location
-			out=$d.cwl
-			if [[ ! -f $out ]]; then
-				echo "Building $d ... "
-				$nix "${root}.all.$d.cwl" | jq . > $out
-			fi
-		done
-	fi
-
-	# build target
-	echo "Building $def ... "
-	# TODO write to better location
-	out=${def}.cwl
-	$nix "${root}.${type}s.${def}.cwl" | jq . > $out
 fi
+
+
+nix="nix-instantiate --eval --strict --expr --json"
+root="(import ./nixflow/defs/top-level)"
+
+list_defs() {
+	$nix "builtins.attrNames ${root}.$1s" | jq -r '.[]'
+}
+
+build_workflow() {
+	local def=$1
+	local deftype=$($nix "${root}.all.${def}.type" | jq -r .)
+
+	# TODO write to better location
+	target=${def}.cwl	
+
+	if [[ ! -f $target ]]; then
+		# local variables will be overwritten in recursive call (quirk of Bash)
+		# therefore, we need to build the target now
+		# ideally, we would build the target last
+		echo "Building $target ... "
+		$nix "${root}.${deftype}s.${def}.cwl" | jq . > $target
+
+		# workflows can have dependencies: build them
+		if [[ "$deftype" == "workflow" ]]; then
+			depends=$($nix "map (x: x.name) ${root}.${deftype}s.${def}.depends" | jq -r '.[]')
+			for d in $depends; do
+				build_workflow $d 
+			done
+		fi
+	fi
+}
+
+if [[ -z $def ]]; then
+	list_defs $deftype
+else
+	build_workflow $def
+fi
+
