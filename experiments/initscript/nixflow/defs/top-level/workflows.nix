@@ -1,8 +1,8 @@
 { lib, tasks }:
 
 let
-	callDef = lib.callDefWith ({ inherit lib; } // tasks);
+  callDef = lib.callDefWith ({ inherit lib; } // tasks);
 in
 {
-	cipher = callDef ../workflows/cipher.nix {};
+  cipher = callDef ../workflows/cipher.nix {};
 }
