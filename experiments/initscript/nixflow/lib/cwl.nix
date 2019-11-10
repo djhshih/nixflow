@@ -1,5 +1,6 @@
 let
   bns = builtins;
+  utl = import ./utils.nix;
 
   # vars is a set of variables and their types
   # e.g. { infile = "File"; a = "string"; b = "int"; }
@@ -26,7 +27,7 @@ let
             then rec {
               type = bns.elemAt x 0;
               outputBinding = {
-                glob = interpolate (bns.elemAt x 1) inVars;
+                glob = utl.interpolate (bns.elemAt x 1) inVars;
                 #loadContents = (type != "File");
                 #outputEval = if type == "File" then null else "$(self[0].contents)";
               };
@@ -89,29 +90,6 @@ let
       pairs = map f (bns.attrNames steps);
     in bns.listToAttrs pairs;
 
-  interpolate = str: vars:
-    let
-      varNames = (bns.attrNames vars);
-      tokens = map (x: "{${x}}") varNames;
-      f = var:
-        if bns.getAttr var vars == "File"
-        then "$(inputs.${var}.path)"
-        else "$(inputs.${var})";
-      newTokens = map f varNames;
-    in
-      bns.replaceStrings tokens newTokens str;
-
-  makeOverridable = f: args0:
-    let
-      res0 = f args0;
-    in
-      res0 // { override = args: makeOverridable f (args0 // args); };
-
-  # TODO
-  # example of extracting 10 from "10G"
-  # builtins.fromJSON (builtins.elemAt (builtins.elemAt (builtins.split
-  # "([[:digit:]]+)" "10G") 1) 0)
-
   script = "script.sh";
 
   cwlVersion = "v1.0";
@@ -122,7 +100,7 @@ rec {
     let
       f = if bns.isFunction fp then fp else import fp;
       auto = bns.intersectAttrs (bns.functionArgs f) defaults;
-    in makeOverridable f (auto // args);
+    in utl.makeOverridable f (auto // args);
 
   mkTask = { name, inputs, outputs, command, runtime }: {
     inherit name;
@@ -137,7 +115,7 @@ rec {
         InitialWorkDirRequirement.listing = [
           {
             entryname = script;
-            entry = interpolate command inputs;
+            entry = utl.interpolate command inputs;
           }
         ];
         ResourceRequirement = {

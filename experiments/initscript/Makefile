@@ -13,3 +13,6 @@ caesar.cwl: $(tasks)/caesar.nix $(lib)/cwl.nix
 
 cipher.cwl: toupper.cwl caesar.cwl $(workflows)/cipher.nix $(lib)/cwl.nix
 	./build.sh workflow cipher
+
+clean:
+	rm -rf toupper.cwl caesar.cwl cipher.cwl

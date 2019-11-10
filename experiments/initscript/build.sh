@@ -23,30 +23,30 @@ else
 fi
 
 
-nix="nix-instantiate --eval --strict --expr --json"
+nixev="nix-instantiate --eval --strict --expr --json"
 root="(import ./nixflow/defs/top-level/cwl.nix)"
 
 list_defs() {
-	$nix "builtins.attrNames ${root}.$1s" | jq -r '.[]'
+	$nixev "builtins.attrNames ${root}.$1s" | jq -r '.[]'
 }
 
 build_workflow() {
 	local ldef=$1
-	local ldeftype=$($nix "${root}.all.${ldef}.type" | jq -r .)
+	local ldeftype=$($nixev "${root}.all.${ldef}.type" | jq -r .)
 	# TODO write to better location
 	local target=${ldef}.cwl
 
 	if [[ ! -f $target ]]; then
 		# workflows can have dependencies: build them
 		if [[ "$ldeftype" == "workflow" ]]; then
-			depends=$($nix "map (x: x.name) ${root}.${ldeftype}s.${ldef}.depends" | jq -r '.[]')
+			depends=$($nixev "map (x: x.name) ${root}.${ldeftype}s.${ldef}.depends" | jq -r '.[]')
 			for d in $depends; do
 				build_workflow $d 
 			done
 		fi
 
 		echo "Building $target ... "
-		$nix "${root}.${ldeftype}s.${ldef}.cwl" | jq . > $target
+		$nixev "${root}.${ldeftype}s.${ldef}.cwl" | jq . > $target
 	fi
 }
 
