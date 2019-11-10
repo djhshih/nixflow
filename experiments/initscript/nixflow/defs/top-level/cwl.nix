@@ -1,5 +1,5 @@
 let
-  lib = import ../../lib;
+  lib = import ../../lib/cwl.nix;
   tasks = import ./tasks.nix { inherit lib; };
   workflows = import ./workflows.nix { inherit lib tasks; };
 in

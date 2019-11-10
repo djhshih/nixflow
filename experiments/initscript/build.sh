@@ -24,7 +24,7 @@ fi
 
 
 nix="nix-instantiate --eval --strict --expr --json"
-root="(import ./nixflow/defs/top-level)"
+root="(import ./nixflow/defs/top-level/cwl.nix)"
 
 list_defs() {
 	$nix "builtins.attrNames ${root}.$1s" | jq -r '.[]'
