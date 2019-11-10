@@ -15,4 +15,10 @@ lib.mkTask {
     cat {infile} |
     tr {from_chars} {to_chars} > {outfname}
   '';
+  runtime = {
+    cpu = 1;
+    memory = 64;
+    disk = 1;
+    duration = 2;
+  };
 }
