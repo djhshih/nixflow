@@ -90,6 +90,18 @@ let
       pairs = map f (bns.attrNames steps);
     in bns.listToAttrs pairs;
 
+  interpolate = str: vars:
+    let
+      varNames = (bns.attrNames vars);
+      tokens = map (x: "{${x}}") varNames;
+      f = var:
+        if bns.getAttr var vars == "File"
+        then "$(inputs.${var}.path)"
+        else "$(inputs.${var})";
+      newTokens = map f varNames;
+    in
+      bns.replaceStrings tokens newTokens str;
+
   script = "script.sh";
 
   cwlVersion = "v1.0";
