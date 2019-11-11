@@ -2,7 +2,7 @@ rec {
   runtime = {
     # required number of cores
     cpu = 1;
-    # required RAM in MiB (need to convert to KiB and convert to total memory)
+    # required RAM in MiB per core
     memory = 1024;
     # time duration limit in minutes
     duration = 120;
@@ -11,10 +11,10 @@ rec {
   };
   submit = ''
     bsub -J {jname} -cwd {work} -o {out} -e {err} \
-      -p {cpu} -M {memory} -W {duration} \
+      -n {cpu} -R "usage[mem={memory}]" -W {duration} \
       {native} -env all \
       {script}
   '';
   kill = "bkill {jid}";
-  check = "bjobs -j {jid}";
+  check = "bjobs {jid}";
 }
