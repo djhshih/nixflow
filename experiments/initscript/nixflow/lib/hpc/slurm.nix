@@ -10,10 +10,9 @@ rec {
     native = "";
   };
   submit = ''
-    sbatch -J {jname} -D {work} -o {out} -e {err} \
+    sbatch -J {jname} -D {work} -o {out} -e {err} --export=ALL \
       --cpus-per-task {cpu} --mem-per-cpu {memory} -t {duration} \
-      {native} --export=ALL \
-      {script}
+      {native} {script}
   '';
   kill = "scancel {jid}";
   check = "squeue -j {jid}";

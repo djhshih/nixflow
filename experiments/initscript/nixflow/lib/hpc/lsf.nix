@@ -10,10 +10,9 @@ rec {
     native = "";
   };
   submit = ''
-    bsub -J {jname} -cwd {work} -o {out} -e {err} \
+    bsub -J {jname} -cwd {work} -o {out} -e {err} -env all \
       -n {cpu} -R "usage[mem={memory}]" -W {duration} \
-      {native} -env all \
-      {script}
+      {native} {script}
   '';
   kill = "bkill {jid}";
   check = "bjobs {jid}";

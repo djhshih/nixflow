@@ -10,10 +10,9 @@ rec {
     native = "";
   };
   submit = ''
-    qsub -N {jname} -wd {work} -o {out} -e {err} \
+    qsub -N {jname} -wd {work} -o {out} -e {err} -V \
       -pe smp {cpu} -l mem_free={memory}M -l h_vmem={memory}M -l h_rt={duration} \
-      {native} -V \
-      {script}
+      {native} {script}
   '';
   kill = "qdel {jid}";
   check = "qstat -f {jid}";
