@@ -140,8 +140,8 @@ rec {
         };
         # TimeLimit specification is not complete yet
         #TimeLimit = {
-        #  # convert from min to s
-        #  timelimit = runtime.duration * 60;
+        #  # duration in seconds
+        #  timelimit = runtime.duration;
         #};
       };
     };

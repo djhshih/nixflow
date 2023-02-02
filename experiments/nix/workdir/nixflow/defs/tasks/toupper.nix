@@ -17,6 +17,6 @@ lib.mkTask {
     cpu = 1;
     memory = 64;
     disk = 1;
-    duration = 1;
+    duration = 60;
   };
 }
