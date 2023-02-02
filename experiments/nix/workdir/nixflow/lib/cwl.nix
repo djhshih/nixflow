@@ -104,7 +104,7 @@ let
 
   script = "script.sh";
 
-  cwlVersion = "v1.0";
+  cwlVersion = "v1.2";
 
 in
 rec {
@@ -138,11 +138,10 @@ rec {
           # required disk space in MiB
           outdirMin = runtime.disk; 
         };
-        # TimeLimit specification is not complete yet
-        #TimeLimit = {
-        #  # convert from min to s
-        #  timelimit = runtime.duration * 60;
-        #};
+        ToolTimeLimit = {
+          # convert from min to s
+          timelimit = runtime.duration * 60;
+        };
       };
     };
   };
