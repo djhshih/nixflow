@@ -1,10 +1,16 @@
 
-all: task.cwl
+all: cwl/task.cwl
 	
 
-task.cwl: src/task.nix src/lib/default.nix
+cwl:
+	mkdir -p $@
+
+cwl/task.cwl: src/task.nix src/lib/default.nix cwl
 	nix-instantiate --eval --json --strict $< | jq . > $@
 
-output.txt: task.cwl input.yaml
+output.txt: cwl/task.cwl input.yaml
 	cwltool $^
+
+clean:
+	rm -rf cwl output.txt
 

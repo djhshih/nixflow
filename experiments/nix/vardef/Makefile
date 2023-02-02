@@ -2,6 +2,6 @@
 all:
 	
 
-output.txt: example.cwl input.yaml
+output.txt: example/task.cwl input.yaml
 	cwltool $^
 

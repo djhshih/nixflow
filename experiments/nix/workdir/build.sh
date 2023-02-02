@@ -34,7 +34,7 @@ build_workflow() {
 	local ldef=$1
 	local ldeftype=$($nixev "${root}.all.${ldef}.type" | jq -r .)
 	# TODO write to better location
-	local target=${ldef}.cwl
+	local target=cwl/${ldef}.cwl
 
 	if [[ ! -f $target ]]; then
 		# workflows can have dependencies: build them
