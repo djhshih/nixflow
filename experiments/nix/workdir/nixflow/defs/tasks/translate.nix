@@ -4,6 +4,8 @@ lib.mkTask {
   name = "toupper";
   inputs = {
     infile = "File";
+    from_chars = "string";
+    to_chars = "string";
     outfname = "string";
   };
   outputs = {
@@ -11,12 +13,12 @@ lib.mkTask {
   };
   command = ''
     cat {infile} |
-    tr a-z A-Z > {outfname}
+    tr {from_chars} {to_chars} > {outfname}
   '';
   runtime = {
     cpu = 1;
     memory = 64;
     disk = 1;
-    duration = 1;
+    duration = 2;
   };
 }

@@ -17,6 +17,9 @@ cwl/caesar.cwl: $(tasks)/caesar.nix $(lib)/cwl.nix cwl
 cwl/cipher.cwl: cwl/toupper.cwl cwl/caesar.cwl $(workflows)/cipher.nix $(lib)/cwl.nix cwl
 	./build.sh workflow cipher
 
+output_caesar.txt:
+	cwltool cwl/cipher.cwl input.yaml
+
 clean:
 	rm -rf cwl output*.txt
 

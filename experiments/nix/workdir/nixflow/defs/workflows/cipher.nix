@@ -7,8 +7,6 @@ lib.mkWorkflow {
   #      for unfulfilled inputs to tasks
   inputs = {
     infile = "File";
-    from_chars = "string";
-    to_chars = "string";
     toupper_outfname = "string";
     caesar_outfname = "string";
     caesar_caesar_outfname = "string";
@@ -27,8 +25,6 @@ lib.mkWorkflow {
       task = "toupper";
       inputs = {
         infile = "infile";
-        from_chars = "from_chars";
-        to_chars = "to_chars";
         outfname = "toupper_outfname";
       };
     };

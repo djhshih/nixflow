@@ -1,1 +1,3 @@
-Make target output directory
+Make target output directory.
+Use HPC arguments.
+Define one task using another (e.g. `toupper` using `translate`).
