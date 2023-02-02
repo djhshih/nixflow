@@ -1,11 +1,10 @@
-let
-p = {
-
+let util = import "./util.ncl" in
+let p = {
 	cwl_version = "v1.0",
 
 	interpolate
 		| doc m%"
-			FIXME interpolate string `s`, converting `{var}` to `$(input.var)$`,
+			interpolate string `s`, converting `{var}` to `$(input.var)$`,
 			using each key-value pair in record `vars`
 			"%
 		= fun s vars =>
@@ -16,9 +15,7 @@ p = {
 				then "$(inputs.%{var}.path)"
 				else "$(inputs.%{var})" in
 			let new_tokens = array.map f var_names in
-			let pairs = zip tokens new_tokens in
-			let replacep = (fun s p => string.replace (array.elem_at 0 s) (array.elem_at 1 s)) in
-			array.fold replacep s pairs,
+			util.replace_all tokens new_tokens s,
 
 	make_inputs
 		| doc m%"
@@ -51,6 +48,8 @@ p = {
 	script = "run.sh"
 
 } in {
+
+	interpolate = p.interpolate,
 
 	make_task = fun r => {
 		name = r.name,
