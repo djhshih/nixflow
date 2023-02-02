@@ -4,8 +4,6 @@ lib.mkTask {
   name = "caesar";
   inputs = {
     infile = "File";
-    #from_chars = "string";
-    #to_chars = "string";
     outfname = "string";
   };
   outputs = {
@@ -13,7 +11,7 @@ lib.mkTask {
   };
   command = ''
     cat {infile} |
-    tr ABCDEFGHIJKLMNOPQRSTUVWXYZ NOPQRSTUVWXYZABCDEFGHIJKLM > {outfname}
+    tr A-Z N-ZA-M > {outfname}
   '';
   runtime = {
     cpu = 1;
