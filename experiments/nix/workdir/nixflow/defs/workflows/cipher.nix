@@ -35,7 +35,7 @@ lib.mkWorkflow {
         outfname = "caesar_outfname";
       };
     };
-    caesar2= {
+    caesar2 = {
       task = "caesar";
       inputs = {
         infile = "caesar.outfile";

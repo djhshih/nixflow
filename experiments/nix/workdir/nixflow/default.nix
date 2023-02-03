@@ -6,5 +6,5 @@ let
 in
 {
   inherit tasks workflows;
-  type = getTypes tasks // getTypes workflows;
+  types = getTypes tasks // getTypes workflows;
 }

@@ -32,7 +32,7 @@ list_defs() {
 
 build_workflow() {
 	local def=$1
-	local type=$($nixev "${root}.type.${def}" | jq -r .)
+	local type=$($nixev "${root}.types.${def}" | jq -r .)
 	local target=$outdir/${def}.cwl
 
 	if [[ ! -f $target ]]; then
