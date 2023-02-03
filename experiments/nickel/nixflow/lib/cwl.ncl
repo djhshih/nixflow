@@ -5,7 +5,7 @@ p = {
 
 	interpolate
 		| doc m%"
-			FIXME interpolate string `s`, converting `{var}` to `$(input.var)$`,
+			interpolate string `s`, converting `{var}` to `$(input.var)$`,
 			using each key-value pair in record `vars`
 			"%
 		= fun s vars =>
