@@ -77,11 +77,13 @@ let p = {
 			"%
 		= fun steps depends =>
 			let
-				f = fun name step =>
-					let task = array.head (array.filter (fun x => x.name == name) depends) in
+				f = fun k step =>
+					# k may not equal the task name
+					let task = array.head (array.filter (fun x => x.name == step.task) depends) in
 					{
-						run = "%{name}.cwl",
-						"in" = record.map (fun k v => var_path v) step.inputs
+						run = "%{step.task}.cwl",
+						"in" = record.map (fun k v => var_path v) step.inputs,
+						out = record.fields task.cwl.outputs,
 					}
 			in record.map f steps,
 					

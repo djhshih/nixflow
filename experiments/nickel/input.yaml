@@ -1,0 +1,5 @@
+infile:
+    class: File
+    path: input.txt
+caesar_outfname: output_caesar.txt
+caesar2_outfname: output_caesar2.txt
