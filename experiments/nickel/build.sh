@@ -35,19 +35,17 @@ build_workflow() {
 	local type=$(echo "${root}.types.${def}" | $nickex | jq -r .)
 	local target=$outdir/${def}.cwl
 
-	if [[ ! -f $target ]]; then
-		# workflows can have dependencies: build them
-		if [[ "$type" == "workflow" ]]; then
-			depends=$(echo "array.map (fun x => x.name) ${root}.${type}s.${def}.depends" | 
-					$nickex | jq -r '.[]')
-			for d in $depends; do
-				build_workflow $d
-			done
-		fi
-
-		echo "Building $target ... "
-		echo "${root}.${type}s.${def}.cwl" | $nickex | jq . > $target
+	# workflows can have dependencies: build them
+	if [[ "$type" == "workflow" ]]; then
+		depends=$(echo "array.map (fun x => x.name) ${root}.${type}s.${def}.depends" | 
+				$nickex | jq -r '.[]')
+		for d in $depends; do
+			build_workflow $d
+		done
 	fi
+
+	echo "Building $target ... "
+	echo "${root}.${type}s.${def}.cwl" | $nickex | jq . > $target
 }
 
 mkdir -p $outdir

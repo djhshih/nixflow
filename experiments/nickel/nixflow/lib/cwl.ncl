@@ -122,22 +122,64 @@ let p = {
 			}
 		},
 
+	missing_workflow_inputs
+		| doc m%"
+			Find missing workflow inputs from dfn `steps` and `depends`.
+			e.g. Produce `{ caesar = {out = {type = "string"}}, caesar2 = {out = {type = "string"}} }`
+			to indicate that step `caesar` is missing input `out` and `caesar2` is missing `out`.
+			"%
+		= fun steps depends => 
+			let f = fun k v => 
+				let	name = v.task in
+				let task = array.filter (fun d => d.name == name) depends |> array.head in
+				let vars = record.fields task.cwl.inputs in
+				let defined = (record.fields v.inputs) in
+				let missing_vars = array.filter 
+					(fun var => !(array.any (fun d => var == d) defined)) vars in
+				array.foldl (fun r var => r & {"%{var}" = task.cwl.inputs."%{var}"}) {} missing_vars
+#in record.map f steps |> record.values |> array.foldl (&) {},
+			in record.map f steps,
+
+	missing_to_inputs
+		| doc m%"
+			Format `missing` record as inputs record by
+			prepending step name to the variable name and flattening the record.
+			"%
+		= fun missing =>
+			let f = fun k vars =>
+				let names = record.fields vars in
+				array.foldl (fun r name => r & {"%{k}_%{name}" = vars."%{name}"}) {} names
+			in record.map f missing |> record.values |> array.foldl (&) {},
+
+	insert_missing
+		| doc m%"
+			Insert `missing` inputs into dfn `steps`.
+			"%
+		= fun missing steps =>
+			let f = fun k vars =>
+				let names = record.fields vars in
+				array.foldl (fun r name => r & { "inputs"."%{name}" = "%{k}_%{name}" }) {} names
+			in (record.map f missing) & steps,
+
 	make_workflow
 		| doc "Make a workflow from definition record `r`"
-		= fun r => {
-			type = "workflow",
-			name = r.name,
-			depends = r.depends,
-			cwl = {
-				cwlVersion = p.cwl_version,
-				class = "Workflow",
-				requirements = if array.any is_workflow r.depends
-					then { SubworkflowFeatureRequirement = {} }
-					else {},
-				inputs = p.make_workflow_inputs r.inputs,
-				outputs = p.make_workflow_outputs r.outputs,
-				steps = p.link_steps r.steps r.depends,
+		= fun r => 
+			let missing = missing_workflow_inputs r.steps r.depends in
+			let filled_steps = insert_missing missing r.steps in
+			{
+				type = "workflow",
+				name = r.name,
+				depends = r.depends,
+				cwl = {
+					cwlVersion = p.cwl_version,
+					class = "Workflow",
+					requirements = if array.any is_workflow r.depends
+						then { SubworkflowFeatureRequirement = {} }
+						else {},
+					inputs = p.make_workflow_inputs r.inputs & missing_to_inputs missing,
+					outputs = p.make_workflow_outputs r.outputs,
+					steps = p.link_steps filled_steps r.depends,
+				},
 			},
-		},
 
 }

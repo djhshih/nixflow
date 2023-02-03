@@ -5,8 +5,8 @@ lib.make_workflow {
 
   inputs = {
     infile = "File",
-    caesar_outfname = "string",
-    caesar2_outfname = "string",
+#caesar_outfname = "string",
+#caesar2_outfname = "string",
   },
 
   outputs = {
@@ -21,14 +21,14 @@ lib.make_workflow {
       task = "caesar",
       inputs = {
         infile = "infile",
-        outfname = "caesar_outfname",
+#outfname = "caesar_outfname",
       },
     },
     caesar2 = {
       task = "caesar",
       inputs = {
         infile = "caesar.outfile",
-        outfname = "caesar2_outfname",
+#outfname = "caesar2_outfname",
       },
     },
   },
