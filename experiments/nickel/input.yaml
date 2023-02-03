@@ -1,4 +1,4 @@
-infile:
+caesar_infile:
     class: File
     path: input.txt
 caesar_outfname: output_caesar.txt

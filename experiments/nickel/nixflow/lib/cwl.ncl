@@ -133,10 +133,13 @@ let p = {
 				let	name = v.task in
 				let task = array.filter (fun d => d.name == name) depends |> array.head in
 				let vars = record.fields task.cwl.inputs in
-				let defined = (record.fields v.inputs) in
-				let missing_vars = array.filter 
-					(fun var => !(array.any (fun d => var == d) defined)) vars in
-				array.foldl (fun r var => r & {"%{var}" = task.cwl.inputs."%{var}"}) {} missing_vars
+				let missing_vars =
+					if record.has_field "inputs" v then
+						let defined = (record.fields v.inputs) in
+						array.filter (fun var => !(array.any (fun d => var == d) defined)) vars
+					else vars
+				in array.foldl (fun r var => r & {"%{var}" = task.cwl.inputs."%{var}"})
+					{} missing_vars
 #in record.map f steps |> record.values |> array.foldl (&) {},
 			in record.map f steps,
 
@@ -176,7 +179,10 @@ let p = {
 					requirements = if array.any is_workflow r.depends
 						then { SubworkflowFeatureRequirement = {} }
 						else {},
-					inputs = p.make_workflow_inputs r.inputs & missing_to_inputs missing,
+					inputs =
+						let inputs_ = if record.has_field "inputs" r
+							then p.make_workflow_inputs r.inputs else {}
+						in inputs_ & missing_to_inputs missing,
 					outputs = p.make_workflow_outputs r.outputs,
 					steps = p.link_steps filled_steps r.depends,
 				},
