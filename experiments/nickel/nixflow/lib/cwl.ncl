@@ -60,16 +60,14 @@ let p = {
 			we want to convert it to:
 			  { outfile = { outputSource = "task/outfile", type = "File" }, ... }
 			"%
-		= fun out_vars =>
-			let
-				f = fun k v =>
-					if builtin.is_array v
-					then {
-						type = array.elem_at 0 v,
-						outputSource = var_path (array.elem_at 1 v)
-					}
-					else null
-			in record.map f out_vars,
+		= fun dfn  =>
+			let out_types = workflow_output_types dfn in
+			let	f = fun name source =>
+				{
+					type = out_types."%{name}",
+					outputSource = var_path source,
+				}
+			in record.map f dfn.outputs,
 
 	find_dep
 		| doc m%"
@@ -143,6 +141,22 @@ let p = {
 				array.foldl (fun r name => r & { "inputs"."%{name}" = "%{k}_%{name}" }) {} names
 			in (record.map f missing) & steps,
 
+	workflow_output_types
+		| doc m%"
+			Determine workflow output types
+			"%
+		= fun { steps, depends, outputs, .. } =>
+			let f = fun k v =>
+				let tokens = string.split "." v in
+				let step_name = array.elem_at 0 tokens in
+				let out_name = array.elem_at 1 tokens in
+				let step = steps."%{step_name}" in
+				let task_name =
+					if record.has_field "task" step then step.task else step_name in
+				let task = find_dep task_name depends in
+				task.cwl.outputs."%{out_name}".type
+			in (record.map f outputs),
+
 } in {
 
 	is_task
@@ -194,7 +208,7 @@ let p = {
 						let inputs_ = if record.has_field "inputs" r
 							then p.make_workflow_inputs r.inputs else {}
 						in inputs_ & p.missing_to_inputs missing,
-					outputs = p.make_workflow_outputs r.outputs,
+					outputs = p.make_workflow_outputs r,
 					steps = p.link_steps filled_steps r.depends,
 				},
 			},

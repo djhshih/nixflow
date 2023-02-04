@@ -30,9 +30,8 @@ fun { dfn, caesar, .. } =>
     },
   },
 
-  # TODO infer variable type
   outputs = {
-    encrypted = ["File", "caesar.outfile"],
-    decrypted = ["File", "caesar2.outfile"],
+    encrypted = "caesar.outfile",
+    decrypted = "caesar2.outfile",
   },
 } | dfn.Workflow
