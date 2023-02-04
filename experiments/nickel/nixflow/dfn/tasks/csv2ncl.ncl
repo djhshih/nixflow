@@ -7,7 +7,7 @@ fun { dfn } =>
     outbase = "string",
   },
   outputs = {
-    outfile = ["File", "{outbase}.txt"],
+    outfile = "{outbase}.txt",
   },
   exec = "python",
 

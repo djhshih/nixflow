@@ -41,12 +41,14 @@ let p = {
 		= fun in_vars out_vars =>
 			let
 				f = fun k v =>
-					if builtin.is_array v
-					then {
-						type = array.elem_at 0 v,
-						outputBinding.glob = interpolate (array.elem_at 1 v) in_vars
+					let glob = interpolate v in_vars in
+					if string.contains "*" glob then {
+						type = { type = "array", items = "File" },
+						outputBinding.glob = glob,
+					} else {
+						type = "File",
+						outputBinding.glob = glob,
 					}
-					else { type = v }
 			in record.map f out_vars,
 
 	var_path = fun s => string.replace "." "/" s,
