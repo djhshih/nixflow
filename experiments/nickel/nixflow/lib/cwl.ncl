@@ -79,7 +79,8 @@ let p = {
 			let matches = 
 				(array.filter (fun x => x.name == name) depends) in
 			if array.length matches == 0 then
-				builtin.trace "error: %{name} not found in depends" {name = ""}
+				builtin.trace "error: %{name} not found in depends"
+					{name = "", type = "error"}
 			else array.head matches,
 
 	link_steps

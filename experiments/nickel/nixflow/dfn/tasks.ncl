@@ -1,7 +1,7 @@
-fun r =>
+fun { lib } =>
 
-let params = { lib | default = r.lib } in
+let params = let lib_ = lib in { lib = lib_ } in
 {
-  caesar | default = import "tasks/caesar.ncl" params,
-  tr | default = import "tasks/tr.ncl" params,
+  caesar | default = lib.make_task (import "tasks/caesar.ncl" params),
+  tr | default = lib.make_task (import "tasks/tr.ncl" params),
 }

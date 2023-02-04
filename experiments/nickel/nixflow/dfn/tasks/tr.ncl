@@ -1,6 +1,5 @@
 fun { lib } =>
-
-lib.make_task {
+{
   name = "caesar",
   inputs = {
     infile = "File",

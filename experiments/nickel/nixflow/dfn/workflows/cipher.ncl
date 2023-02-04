@@ -1,7 +1,6 @@
 # NB  all dependencies must be listed here
 fun { lib, caesar, .. } =>
-
-lib.make_workflow {
+{
   name = "cipher",
 
   # NB  inputs may be inferred from the steps
