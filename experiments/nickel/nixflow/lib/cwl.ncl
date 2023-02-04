@@ -71,6 +71,17 @@ let p = {
 					else null
 			in record.map f out_vars,
 
+	find_dep
+		| doc m%"
+			Find dependency by name in a dependency array
+			"%
+		= fun name depends =>
+			let matches = 
+				(array.filter (fun x => x.name == name) depends) in
+			if array.length matches == 0 then
+				builtin.trace "error: %{name} not found in depends" {name = ""}
+			else array.head matches,
+
 	link_steps
 		| doc m%"
 			Link steps of a workflow using record `steps` and array `depends`
@@ -79,16 +90,57 @@ let p = {
 			let
 				f = fun k step =>
 					# k may not equal the task name
-					let task_name =
+					let name =
 						if record.has_field "task" step then step.task else k in
-					let task = array.head (array.filter (fun x => x.name == task_name) depends) in
+					let task = find_dep name depends in
 					{
-						run = "%{task_name}.cwl",
+						run = "%{name}.cwl",
 						"in" = record.map (fun k v => var_path v) step.inputs,
 						out = record.fields task.cwl.outputs,
 					}
 			in record.map f steps,
 					
+	missing_workflow_inputs
+		| doc m%"
+			Find missing workflow inputs from dfn `steps` and `depends`.
+			e.g. Produce `{ caesar = {out = {type = "string"}}, caesar2 = {out = {type = "string"}} }`
+			to indicate that step `caesar` is missing input `out` and `caesar2` is missing `out`.
+			"%
+		= fun steps depends => 
+			let f = fun k v => 
+				let	name = if record.has_field "task" v then v.task else k in
+				let task = find_dep name depends in
+				let vars = record.fields task.cwl.inputs in
+				let missing_vars =
+					if record.has_field "inputs" v then
+						let defined = (record.fields v.inputs) in
+						array.filter (fun var => !(array.any (fun d => var == d) defined)) vars
+					else vars
+				in array.foldl (fun r var => r & {"%{var}" = task.cwl.inputs."%{var}"})
+					{} missing_vars
+#in record.map f steps |> record.values |> array.foldl (&) {},
+			in record.map f steps,
+
+	missing_to_inputs
+		| doc m%"
+			Format `missing` record as inputs record by
+			prepending step name to the variable name and flattening the record.
+			"%
+		= fun missing =>
+			let f = fun k vars =>
+				let names = record.fields vars in
+				array.foldl (fun r name => r & {"%{k}_%{name}" = vars."%{name}"}) {} names
+			in record.map f missing |> record.values |> array.foldl (&) {},
+
+	insert_missing
+		| doc m%"
+			Insert `missing` inputs into dfn `steps`.
+			"%
+		= fun missing steps =>
+			let f = fun k vars =>
+				let names = record.fields vars in
+				array.foldl (fun r name => r & { "inputs"."%{name}" = "%{k}_%{name}" }) {} names
+			in (record.map f missing) & steps,
 
 } in {
 
@@ -124,53 +176,11 @@ let p = {
 			}
 		},
 
-	missing_workflow_inputs
-		| doc m%"
-			Find missing workflow inputs from dfn `steps` and `depends`.
-			e.g. Produce `{ caesar = {out = {type = "string"}}, caesar2 = {out = {type = "string"}} }`
-			to indicate that step `caesar` is missing input `out` and `caesar2` is missing `out`.
-			"%
-		= fun steps depends => 
-			let f = fun k v => 
-				let	name = if record.has_field "task" v then v.task else k in
-				let task = array.filter (fun d => d.name == name) depends |> array.head in
-				let vars = record.fields task.cwl.inputs in
-				let missing_vars =
-					if record.has_field "inputs" v then
-						let defined = (record.fields v.inputs) in
-						array.filter (fun var => !(array.any (fun d => var == d) defined)) vars
-					else vars
-				in array.foldl (fun r var => r & {"%{var}" = task.cwl.inputs."%{var}"})
-					{} missing_vars
-#in record.map f steps |> record.values |> array.foldl (&) {},
-			in record.map f steps,
-
-	missing_to_inputs
-		| doc m%"
-			Format `missing` record as inputs record by
-			prepending step name to the variable name and flattening the record.
-			"%
-		= fun missing =>
-			let f = fun k vars =>
-				let names = record.fields vars in
-				array.foldl (fun r name => r & {"%{k}_%{name}" = vars."%{name}"}) {} names
-			in record.map f missing |> record.values |> array.foldl (&) {},
-
-	insert_missing
-		| doc m%"
-			Insert `missing` inputs into dfn `steps`.
-			"%
-		= fun missing steps =>
-			let f = fun k vars =>
-				let names = record.fields vars in
-				array.foldl (fun r name => r & { "inputs"."%{name}" = "%{k}_%{name}" }) {} names
-			in (record.map f missing) & steps,
-
 	make_workflow
 		| doc "Make a workflow from definition record `r`"
 		= fun r => 
-			let missing = missing_workflow_inputs r.steps r.depends in
-			let filled_steps = insert_missing missing r.steps in
+			let missing = p.missing_workflow_inputs r.steps r.depends in
+			let filled_steps = p.insert_missing missing r.steps in
 			{
 				type = "workflow",
 				name = r.name,
@@ -184,7 +194,7 @@ let p = {
 					inputs =
 						let inputs_ = if record.has_field "inputs" r
 							then p.make_workflow_inputs r.inputs else {}
-						in inputs_ & missing_to_inputs missing,
+						in inputs_ & p.missing_to_inputs missing,
 					outputs = p.make_workflow_outputs r.outputs,
 					steps = p.link_steps filled_steps r.depends,
 				},
