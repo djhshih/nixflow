@@ -4,10 +4,10 @@ fun { dfn } =>
   inputs = {
     infile = "File",
     sep = "string",
-    outfname = "string",
+    outbase = "string",
   },
   outputs = {
-    outfile = ["File", "{outfname}"],
+    outfile = ["File", "{outbase}.txt"],
   },
   exec = "python",
 
@@ -25,7 +25,7 @@ with open('{infile}') as inf:
         rows.append('{}="{}"'.format(k, v))
     out.append( '{' + ','.join(rows) + '}' )
 
-with open('{outfname}', 'w') as outf:
+with open('{outbase}.txt', 'w') as outf:
   outf.write('[' + ','.join(out) + ']')
   
   "%,

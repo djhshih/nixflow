@@ -5,13 +5,13 @@ fun { dfn } =>
     infile = "File",
     from_char = "string",
     to_char = "string",
-    outfname = "string",
+    outbase = "string",
   },
   outputs = {
-    outfile = ["File", "{outfname}"],
+    outfile = ["File", "{outbase}.txt"],
   },
   command = m%"
     cat {infile} |
-    tr {from_char} {to_char} > {outfname}  
+    tr {from_char} {to_char} > {outbase}.txt
   "%,
 } | dfn.Task
