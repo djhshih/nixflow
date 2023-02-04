@@ -22,11 +22,11 @@ with open('{infile}') as inf:
     rows = []
     values = line.rstrip().split('{sep}')
     for k, v in zip(fields, values):
-        rows.append('{} = "{}"'.format(k, v))
-    out.append( '{ ' + ', '.join(rows) + ' }' )
+        rows.append('{}="{}"'.format(k, v))
+    out.append( '{' + ','.join(rows) + '}' )
 
 with open('{outfname}', 'w') as outf:
-  outf.write('[ ' + ', '.join(out) + ' ]')
+  outf.write('[' + ','.join(out) + ']')
   
   "%,
 } | dfn.Task
