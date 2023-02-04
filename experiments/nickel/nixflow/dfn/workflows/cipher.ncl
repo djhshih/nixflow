@@ -1,5 +1,5 @@
 # NB  all dependencies must be listed here
-fun { lib, caesar, .. } =>
+fun { dfn, caesar, .. } =>
 {
   name = "cipher",
 
@@ -35,4 +35,4 @@ fun { lib, caesar, .. } =>
     encrypted = ["File", "caesar.outfile"],
     decrypted = ["File", "caesar2.outfile"],
   },
-}
+} | dfn.Workflow

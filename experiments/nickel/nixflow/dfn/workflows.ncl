@@ -1,6 +1,6 @@
-fun { lib, tasks} =>
+fun { lib, dfn, tasks} =>
 
-let params = let lib_ = lib in { lib = lib_ } & tasks in
+let params = let dfn_ = dfn in { dfn = dfn_ } & tasks in
 {
-  cipher | default = lib.make_workflow (import "workflows/cipher.ncl" tasks)
+  cipher | default = lib.make_workflow (import "workflows/cipher.ncl" params)
 }

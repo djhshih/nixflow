@@ -145,15 +145,13 @@ let p = {
 
 } in {
 
-	interpolate = p.interpolate,
-
 	is_task
 		| doc "Check if value is a task"
 		= fun x => x.type == "task",
 
 	is_workflow
 		| doc "Check if value is a workflow"
-		= fun r => r.type == "workflow",
+		= fun x => x.type == "workflow",
 
 	make_task
 		| doc "Make a task from definition record `r`"
@@ -200,5 +198,7 @@ let p = {
 					steps = p.link_steps filled_steps r.depends,
 				},
 			},
+
+	interpolate = p.interpolate,
 
 }

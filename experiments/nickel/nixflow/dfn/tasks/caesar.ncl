@@ -1,4 +1,4 @@
-fun { lib } =>
+fun { dfn } =>
 {
   name = "caesar",
   inputs = {
@@ -12,4 +12,4 @@ fun { lib } =>
     cat {infile} |
     tr A-Za-z N-ZA-Mn-za-m > {outfname}  
   "%,
-}
+} | dfn.Task
