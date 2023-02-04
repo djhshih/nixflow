@@ -8,8 +8,11 @@
 						  | doc "record of input parameter name and type",
 			outputs | { .. } 
 						  | doc "record of output parameter name, type, and value",
+			exec    | Str
+							| doc "command line program and arguments"
+							| default = "bash",
 			command | Str 
-							| doc "execution command",
+							| doc "command to execute",
 			..
 		},
 

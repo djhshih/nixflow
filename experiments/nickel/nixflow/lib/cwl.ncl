@@ -4,7 +4,7 @@ let p = {
 
 	cwl_version = "v1.0",
 
-	script = "run.sh",
+	script = "command",
 
 	interpolate
 		| doc m%"
@@ -175,7 +175,7 @@ let p = {
 			cwl = {
 				cwlVersion = p.cwl_version,
 				class = "CommandLineTool",
-				baseCommand = [ "bash", p.script ],
+				baseCommand = string.split " " r.exec @ [p.script],
 				inputs = p.make_inputs r.inputs,
 				outputs = p.make_outputs r.inputs r.outputs,
 				requirements = {
