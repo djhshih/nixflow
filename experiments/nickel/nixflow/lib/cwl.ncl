@@ -119,7 +119,6 @@ let p = {
 					else vars
 				in array.foldl (fun r var => r & {"%{var}" = task.cwl.inputs."%{var}"})
 					{} missing_vars
-#in record.map f steps |> record.values |> array.foldl (&) {},
 			in record.map f steps,
 
 	missing_to_inputs

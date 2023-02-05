@@ -3,7 +3,7 @@ fun { dfn } =>
   name = "caesar",
   inputs = {
     infile = "File",
-    outbase = "string",
+    # outbase = "string",
   },
   outputs = {
     outfile = "{outbase}.txt",

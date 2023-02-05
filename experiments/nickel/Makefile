@@ -19,5 +19,5 @@ output:
 	cwltool --cachedir cache --outdir out cwl/cipher.cwl input.yaml
 
 clean:
-	rm -rf cwl output*.txt
+	rm -rf cwl out cache
 

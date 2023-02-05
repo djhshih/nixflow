@@ -5,7 +5,7 @@ fun { dfn } =>
     infile = "File",
     from_char = "string",
     to_char = "string",
-    outbase = "string",
+    # outbase = "string",
   },
   outputs = {
     outfile = "{outbase}.txt",
