@@ -1,5 +1,5 @@
 caesar_infile:
     class: File
     path: input.txt
-caesar_outbase: output_caesar
+outbase: output_caesar
 caesar2_outbase: output_caesar2

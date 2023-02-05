@@ -132,6 +132,18 @@ let p = {
 				array.foldl (fun r name => r & {"%{k}_%{name}" = vars."%{name}"}) {} names
 			in record.map f missing |> record.values |> array.foldl (&) {},
 
+	insert_defaults
+		| doc m%"
+			Insert default arguments into dfn `steps`.
+			"%
+		= fun steps =>
+			let f = fun k vars =>
+				if record.has_field "inputs" vars &&
+					record.has_field "outbase" vars.inputs
+				then vars
+				else vars & { inputs.outbase = "outbase" }
+			in (record.map f steps),
+
 	insert_missing
 		| doc m%"
 			Insert `missing` inputs into dfn `steps`.
@@ -193,8 +205,9 @@ let p = {
 	make_workflow
 		| doc "Make a workflow from definition record `r`"
 		= fun r => 
-			let missing = p.missing_workflow_inputs r.steps r.depends in
-			let filled_steps = p.insert_missing missing r.steps in
+			let steps1 = p.insert_defaults r.steps in
+			let missing = p.missing_workflow_inputs steps1 r.depends in
+			let steps2 = p.insert_missing missing steps1 in
 			{
 				type = "workflow",
 				name = r.name,
@@ -208,9 +221,9 @@ let p = {
 					inputs =
 						let inputs_ = if record.has_field "inputs" r
 							then p.make_workflow_inputs r.inputs else {}
-						in inputs_ & p.missing_to_inputs missing,
+						in inputs_ & { outbase = "string" } & p.missing_to_inputs missing,
 					outputs = p.make_workflow_outputs r,
-					steps = p.link_steps filled_steps r.depends,
+					steps = p.link_steps steps2 r.depends,
 				},
 			},
 
