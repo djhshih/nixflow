@@ -16,7 +16,7 @@ cwl/csv2ncl.cwl: $(tasks)/csv2ncl.ncl cwl
 	./build.sh task csv2ncl
 
 output:
-	cwltool cwl/cipher.cwl input.yaml
+	cwltool --cachedir cache --outdir out cwl/cipher.cwl input.yaml
 
 clean:
 	rm -rf cwl output*.txt
