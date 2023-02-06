@@ -3,10 +3,13 @@ fun { dfn, caesar, .. } =>
 {
   name = "cipher",
 
-  # NB  missing inputs may be inferred from the steps
-  inputs = {
-    caesar2_outbase = "string",
-  },
+  # NB  input parameters may be inferred from:
+  #     args missing from steps (e.g. caesar_infile)
+  #     args used in steps (e.g. caesar2_outbase)
+  # NB  default parameters, e.g. outbase (string) will be inserted
+  # inputs = {
+  #   caesar2_outbase = "string",
+  # },
 
   # NB  all task dependencies used in steps must also be listed here
   depends = [ caesar ],

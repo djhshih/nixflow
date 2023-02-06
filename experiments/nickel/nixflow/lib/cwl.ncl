@@ -155,6 +155,33 @@ let p = {
 				array.foldl (fun r name => r & { "inputs"."%{name}" = "%{k}_%{name}" }) {} names
 			in (record.map f missing) & steps,
 
+	find_step_task
+		| doc m%"
+			Find compiled task record for `step` from depends
+			"%
+		= fun step_name step depends =>
+			let task_name =
+				if record.has_field "task" step then step.task else step_name in
+			find_dep task_name depends,
+
+	find_required_args
+		| doc m%"
+			Find required args in dfn `steps`, returning record of arg name and type
+			"%
+		= fun steps depends =>
+			let f = fun step_name step =>
+				if record.has_field "inputs" step then
+					let g = fun var v =>
+						# ignore args based on task outputs
+						if string.contains "." v then {}
+						else
+							let task = find_step_task step_name step depends in
+							{ "%{v}" = task.cwl.inputs."%{var}".type }
+					in record.map g step.inputs |> record.values
+				else []
+			in let vars = record.map f steps |> record.values |> array.flatten in
+			array.foldl (fun r x => r & x) {} vars,
+
 	workflow_output_types
 		| doc m%"
 			Determine workflow output types
@@ -206,6 +233,9 @@ let p = {
 	make_workflow
 		| doc "Make a workflow from definition record `r`"
 		= fun r => 
+			let inputs_declared = if record.has_field "inputs" r then r.inputs else {} in
+			let rargs_dfn = p.find_required_args r.steps r.depends in
+			let inputs_dfn = inputs_declared & { outbase = "string" } & rargs_dfn in
 			let steps1 = p.insert_default_args r.steps in
 			let missing = p.find_missing_task_args steps1 r.depends in
 			let steps2 = p.insert_missing_args missing steps1 in
@@ -219,10 +249,7 @@ let p = {
 					requirements = if array.any is_workflow r.depends
 						then { SubworkflowFeatureRequirement = {} }
 						else {},
-					inputs =
-						let inputs_ = if record.has_field "inputs" r
-							then p.make_workflow_inputs r.inputs else {}
-						in inputs_ & { outbase = "string" } & p.missing_to_inputs missing,
+					inputs = p.make_workflow_inputs inputs_dfn & p.missing_to_inputs missing,
 					outputs = p.make_workflow_outputs r,
 					steps = p.link_steps steps2 r.depends,
 				},
