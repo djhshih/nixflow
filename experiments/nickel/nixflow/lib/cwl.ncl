@@ -101,9 +101,10 @@ let p = {
 					}
 			in record.map f steps,
 					
-	missing_workflow_inputs
+	find_missing_task_args
 		| doc m%"
-			Find missing workflow inputs from dfn `steps` and `depends`.
+			Find missing workflow inputs based on missing task arguments in dfn `steps`,
+			relying on compiled task records in `depends`.
 			e.g. Produce `{ caesar = {out = {type = "string"}}, caesar2 = {out = {type = "string"}} }`
 			to indicate that step `caesar` is missing input `out` and `caesar2` is missing `out`.
 			"%
@@ -132,7 +133,7 @@ let p = {
 				array.foldl (fun r name => r & {"%{k}_%{name}" = vars."%{name}"}) {} names
 			in record.map f missing |> record.values |> array.foldl (&) {},
 
-	insert_defaults
+	insert_default_args
 		| doc m%"
 			Insert default arguments into dfn `steps`.
 			"%
@@ -144,7 +145,7 @@ let p = {
 				else vars & { inputs.outbase = "outbase" }
 			in (record.map f steps),
 
-	insert_missing
+	insert_missing_args
 		| doc m%"
 			Insert `missing` inputs into dfn `steps`.
 			"%
@@ -205,9 +206,9 @@ let p = {
 	make_workflow
 		| doc "Make a workflow from definition record `r`"
 		= fun r => 
-			let steps1 = p.insert_defaults r.steps in
-			let missing = p.missing_workflow_inputs steps1 r.depends in
-			let steps2 = p.insert_missing missing steps1 in
+			let steps1 = p.insert_default_args r.steps in
+			let missing = p.find_missing_task_args steps1 r.depends in
+			let steps2 = p.insert_missing_args missing steps1 in
 			{
 				type = "workflow",
 				name = r.name,
