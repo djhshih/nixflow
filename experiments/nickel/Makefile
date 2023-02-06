@@ -3,7 +3,7 @@ tasks = nixflow/dfn/tasks
 workflows = nixflow/dfn/workflows
 tasks = nixflow/dfn/tasks
 
-all: cwl/cipher.cwl cwl/csv2ncl.cwl
+all: cwl/cipher.cwl cwl/csv2ncl.cwl cwl/letter-cases.cwl
 	
 
 cwl:
@@ -12,11 +12,15 @@ cwl:
 cwl/cipher.cwl: $(tasks)/caesar.ncl $(workflows)/cipher.ncl $(lib)/cwl.ncl cwl
 	./build.sh workflow cipher
 
+cwl/letter-cases.cwl: $(tasks)/tr.ncl $(workflows)/letter-cases.ncl $(lib)/cwl.ncl cwl
+	./build.sh workflow letter-cases
+
 cwl/csv2ncl.cwl: $(tasks)/csv2ncl.ncl cwl
 	./build.sh task csv2ncl
 
 output:
 	cwltool --cachedir cache --outdir out cwl/cipher.cwl input.yaml
+	cwltool --cachedir cache --outdir out cwl/letter-cases.cwl example/letter-cases/input.yaml
 
 clean:
 	rm -rf cwl out cache

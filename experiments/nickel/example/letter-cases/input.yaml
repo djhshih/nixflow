@@ -1,0 +1,8 @@
+infile:
+    class: File
+    path: input.txt
+from_char: A-Za-z
+outbase: output_uc
+lower_outbase: output_lc
+upper_to_char: A-ZA-Z
+lower_to_char: a-za-z

@@ -133,17 +133,33 @@ let p = {
 				array.foldl (fun r name => r & {"%{k}_%{name}" = vars."%{name}"}) {} names
 			in record.map f missing |> record.values |> array.foldl (&) {},
 
-	insert_default_args
+	insert_auto_args
 		| doc m%"
-			Insert default arguments into dfn `steps`.
+			Insert auto arguments into dfn `steps` if the input workflow parameter name
+		  matches the task parameter name.
 			"%
-		= fun steps =>
-			let f = fun k vars =>
-				if record.has_field "inputs" vars &&
-					record.has_field "outbase" vars.inputs
-				then vars
-				else vars & { inputs.outbase = "outbase" }
-			in (record.map f steps),
+		= fun inputs steps depends =>
+			let f = fun step_name step =>
+				let task = find_step_task step_name step depends in
+				let step_inputs = 
+					if record.has_field "inputs" step then step.inputs 
+					else {} in
+				let g = fun var type =>
+					if record.has_field var step_inputs then
+						# step already defined the parameter: do nothing
+						{}
+					else if record.has_field var task.cwl.inputs &&
+						task.cwl.inputs."%{var}".type == type then
+						# step did not define parameter but task has parameter with the
+						# same name and type: add this parameter to the step
+						{ inputs."%{var}" = var }
+					else
+						# no match: do nothing
+						{}
+				in let adds = record.map g inputs |> record.values in
+				array.fold (fun r add => r & add) step adds
+			in (record.map f steps)
+		,
 
 	insert_missing_args
 		| doc m%"
@@ -236,10 +252,11 @@ let p = {
 			let inputs_declared = if record.has_field "inputs" r then r.inputs else {} in
 			let rargs_dfn = p.find_required_args r.steps r.depends in
 			let inputs_dfn = inputs_declared & { outbase = "string" } & rargs_dfn in
-			let steps1 = p.insert_default_args r.steps in
+			let steps1 = p.insert_auto_args inputs_dfn r.steps r.depends in
 			let missing = p.find_missing_task_args steps1 r.depends in
 			let steps2 = p.insert_missing_args missing steps1 in
 			{
+				steps1_ = steps1,
 				type = "workflow",
 				name = r.name,
 				depends = r.depends,

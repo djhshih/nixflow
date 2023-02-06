@@ -1,6 +1,6 @@
 fun { dfn } =>
 {
-  name = "caesar",
+  name = "tr",
   inputs = {
     infile = "File",
     from_char = "string",
@@ -11,7 +11,6 @@ fun { dfn } =>
     outfile = "{outbase}.txt",
   },
   command = m%"
-    cat {infile} |
-    tr {from_char} {to_char} > {outbase}.txt
+    tr {from_char} {to_char} < {infile} > {outbase}.txt
   "%,
 } | dfn.Task
