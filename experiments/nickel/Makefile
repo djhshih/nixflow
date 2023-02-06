@@ -20,10 +20,7 @@ cwl/csv2ncl.cwl: $(tasks)/csv2ncl.ncl cwl
 
 output:
 	cwltool --cachedir cache/cipher --outdir out cwl/cipher.cwl input.yaml
-	# using a cache directory for the letter-cases workflow causes an incorrect
-	# cache directory to be created... perhaps because both steps use tr.cwl and
-	# the same input file (even though the other parameters are different)?
-	cwltool --outdir out cwl/letter-cases.cwl example/letter-cases/input.yaml
+	cwltool --cachedir cache/letter-cases --outdir out cwl/letter-cases.cwl example/letter-cases/input.yaml
 
 clean:
 	rm -rf cwl out cache

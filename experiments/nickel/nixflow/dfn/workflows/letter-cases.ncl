@@ -31,7 +31,7 @@ fun { dfn, tr, .. } =>
       # NB we specify `lower_outbase` explicitly here, because we do not want
       #    to use the same `outbase` as in the `upper` step
       inputs = {
-        # infile = "infile",
+        infile = "upper.outfile",
         # from_char = "from_char",
         # to_char = "lower_to_char",
         outbase = "lower_outbase",
