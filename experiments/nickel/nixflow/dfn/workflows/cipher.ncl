@@ -21,7 +21,8 @@ fun { dfn, caesar, .. } =>
 
       # NB  omitted inputs can be automatically inserted into the cwl
       # inputs = {
-      #     infile = "infile",
+      #     infile = "caesar_infile",
+      #     outbase = "outbase",
       # },
     },
     caesar2 = {
@@ -29,6 +30,9 @@ fun { dfn, caesar, .. } =>
       task = "caesar",
       inputs = {
         infile = "caesar.outfile",
+        # NB  link a new outbase explicitly;
+        #     if we don't, the default outbase will be linked here,
+        #     which is not what we want in this case
         outbase = "caesar2_outbase",
       },
     },
