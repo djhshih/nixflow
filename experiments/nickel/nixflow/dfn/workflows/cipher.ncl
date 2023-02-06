@@ -6,7 +6,7 @@ fun { dfn, caesar, .. } =>
   # NB  input parameters may be inferred from:
   #     args missing from steps (e.g. caesar_infile)
   #     args used in steps (e.g. caesar2_outbase)
-  # NB  default parameters, e.g. outbase (string) will be inserted
+  # NB  default parameters, e.g. outbase (string) will be inserted and linked
   # inputs = {
   #   caesar2_outbase = "string",
   # },
