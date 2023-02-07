@@ -19,8 +19,8 @@ cwl/csv2ncl.cwl: $(tasks)/csv2ncl.ncl cwl
 	./build.sh task csv2ncl
 
 output:
-	cwltool --cachedir cache/cipher --outdir out cwl/cipher.cwl input.yaml
-	cwltool --cachedir cache/letter-cases --outdir out cwl/letter-cases.cwl example/letter-cases/input.yaml
+	cwltool --cachedir cache/cipher --outdir out/cipher cwl/cipher.cwl example/cipher/input.yaml
+	cwltool --cachedir cache/letter-cases --outdir out/letter-cases cwl/letter-cases.cwl example/letter-cases/input.yaml
 
 clean:
 	rm -rf cwl out cache
