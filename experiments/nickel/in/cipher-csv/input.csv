@@ -1,4 +1,4 @@
-sample_id,infile
+sample_id,caesar_infile
 cogito,input/cogito.txt
 veni,input/veni.txt
 acta,input/acta.txt
