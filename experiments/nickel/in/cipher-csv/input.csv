@@ -1,4 +1,4 @@
 sample_id,infile
-cogito,cogito.txt
-veni,veni.txt
-acta,acta.txt
+cogito,input/cogito.txt
+veni,input/veni.txt
+acta,input/acta.txt
