@@ -26,7 +26,6 @@ build() {
 
 	mkdir -p $outdir
 
-	echo $type
 	# workflows can have dependencies: build them
 	if [[ $type =~ "workflow" ]]; then
 		depends=$(nickpr "array.map (fun x => x.name) ${root}.${def}.depends")
@@ -38,6 +37,17 @@ build() {
 
 	echo "Building $target ... "
 	nickex "${root}.${def}.cwl" > $target
+}
+
+template() {
+	local def=$1
+	local type=$(nickpr "${root}.${def}.type")
+	local target="template/$def/common.ncl"
+
+	mkdir -p template/$def/
+	nickel > $target << EOF
+		let inputs = ${root}.${def}.cwl.inputs in let f = fun k v => v.type in record.map f inputs
+EOF
 }
 
 
@@ -52,4 +62,5 @@ def=$1
 outdir=cwl
 
 build $def
+template $def
 

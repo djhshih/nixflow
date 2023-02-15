@@ -23,5 +23,5 @@ output:
 	cwltool --cachedir cache/letter-cases --outdir out/letter-cases cwl/letter-cases.cwl in/letter-cases/input.yaml
 
 clean:
-	rm -rf cwl out cache
+	rm -rf cwl out cache template
 
