@@ -4,55 +4,52 @@
 
 set -euo pipefail
 
-if [[ $# < 1 ]]; then
-	echo "usage $0 <task | workflow> [name]"
-	exit 1
-fi
-
-deftype=$1
-
-if [[ "$deftype" != "task" && "$deftype" != "workflow" ]]; then
-	echo "Input error: we got $deftype but expect task or workflow"
-	exit 1
-fi
-
-if [[ $# < 2 ]]; then
-	def=''
-else
-	def=$2
-fi
-
-nickex="nickel export --format json"
 root='(import "nixflow/cwl.ncl")'
-outdir=cwl
 
-list_defs() {
-	echo "record.fields ${root}.$1s" | $nickex | jq -r '.[]'
+nickpr() {
+	nickel export --format yaml <<< $1 |
+	sed 's/---//;s/- //g'
 }
 
-build_workflow() {
+nickex() {
+	nickel export --format json <<< $1
+}
+
+list_defs() {
+	nickex "record.fields ${root}"
+}
+
+build() {
 	local def=$1
-	local type=$(echo "${root}.types.${def}" | $nickex | jq -r .)
+	local type=$(nickpr "${root}.${def}.type")
 	local target=$outdir/${def}.cwl
 
+	mkdir -p $outdir
+
+	echo $type
 	# workflows can have dependencies: build them
-	if [[ "$type" == "workflow" ]]; then
-		depends=$(echo "array.map (fun x => x.name) ${root}.${type}s.${def}.depends" | 
-				$nickex | jq -r '.[]')
+	if [[ $type =~ "workflow" ]]; then
+		depends=$(nickpr "array.map (fun x => x.name) ${root}.${def}.depends")
+		echo $depends
 		for d in $depends; do
-			build_workflow $d
+			build $d
 		done
 	fi
 
 	echo "Building $target ... "
-	echo "${root}.${type}s.${def}.cwl" | $nickex | jq . > $target
+	nickex "${root}.${def}.cwl" > $target
 }
 
-mkdir -p $outdir
 
-if [[ -z $def ]]; then
-	list_defs $deftype
-else
-	build_workflow $def
+if [[ $# < 1 ]]; then
+	echo "usage: $0 [task | workflow]"
+	echo "available tasks or workflows: "
+	list_defs
+	exit 1
 fi
+
+def=$1
+outdir=cwl
+
+build $def
 

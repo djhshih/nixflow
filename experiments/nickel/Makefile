@@ -10,17 +10,17 @@ cwl:
 	mkdir -p $@
 
 cwl/cipher.cwl: $(tasks)/caesar.ncl $(workflows)/cipher.ncl $(lib)/cwl.ncl cwl
-	./build.sh workflow cipher
+	./build.sh cipher
 
 cwl/letter-cases.cwl: $(tasks)/tr.ncl $(workflows)/letter-cases.ncl $(lib)/cwl.ncl cwl
-	./build.sh workflow letter-cases
+	./build.sh letter-cases
 
 cwl/csv2ncl.cwl: $(tasks)/csv2ncl.ncl cwl
-	./build.sh task csv2ncl
+	./build.sh csv2ncl
 
 output:
-	cwltool --cachedir cache/cipher --outdir out/cipher cwl/cipher.cwl example/cipher/input.yaml
-	cwltool --cachedir cache/letter-cases --outdir out/letter-cases cwl/letter-cases.cwl example/letter-cases/input.yaml
+	cwltool --cachedir cache/cipher --outdir out/cipher cwl/cipher.cwl in/cipher/input.yaml
+	cwltool --cachedir cache/letter-cases --outdir out/letter-cases cwl/letter-cases.cwl in/letter-cases/input.yaml
 
 clean:
 	rm -rf cwl out cache
