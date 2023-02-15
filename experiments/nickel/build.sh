@@ -42,9 +42,9 @@ build() {
 template() {
 	local def=$1
 	local type=$(nickpr "${root}.${def}.type")
-	local target="template/$def/common.ncl"
+	local target="template/${def}.ncl"
 
-	mkdir -p template/$def/
+	mkdir -p template
 	nickel > $target << EOF
 		let inputs = ${root}.${def}.cwl.inputs in let f = fun k v => v.type in record.map f inputs
 EOF
