@@ -16,7 +16,7 @@ nickex() {
 }
 
 list_defs() {
-	nickex "record.fields ${root}"
+	nickex "std.record.fields ${root}"
 }
 
 build() {
@@ -28,7 +28,7 @@ build() {
 
 	# workflows can have dependencies: build them
 	if [[ $type =~ "workflow" ]]; then
-		depends=$(nickpr "array.map (fun x => x.name) ${root}.${def}.depends")
+		depends=$(nickpr "std.array.map (fun x => x.name) ${root}.${def}.depends")
 		echo $depends
 		for d in $depends; do
 			build $d
@@ -46,7 +46,7 @@ template() {
 
 	mkdir -p template
 	nickel > $target << EOF
-		let inputs = ${root}.${def}.cwl.inputs in let f = fun k v => v.type in record.map f inputs
+		let inputs = ${root}.${def}.cwl.inputs in let f = fun k v => v.type in std.record.map f inputs
 EOF
 }
 
