@@ -7,12 +7,12 @@ set -euo pipefail
 root='(import "nixflow/cwl.ncl")'
 
 nickpr() {
-	nickel export --format yaml <<< $1 |
+	NICKEL_IMPORT_PATH=./nixflow/dfn/tasks:./nixflow/dfn/tasks:./nixflow/dfn/workflows:./nixflow/lib nickel export --format yaml <<< $1 |
 	sed 's/---//;s/- //g'
 }
 
 nickex() {
-	nickel export --format json <<< $1
+	NICKEL_IMPORT_PATH=./nixflow/dfn/tasks:./nixflow/dfn/tasks:./nixflow/dfn/workflows:./nixflow/lib nickel export --format json <<< $1
 }
 
 list_defs() {
@@ -45,7 +45,7 @@ template() {
 	local target="template/${def}.ncl"
 
 	mkdir -p template
-	nickel > $target << EOF
+	nickel eval > $target << EOF
 		let inputs = ${root}.${def}.cwl.inputs in let f = fun k v => v.type in std.record.map f inputs
 EOF
 }
