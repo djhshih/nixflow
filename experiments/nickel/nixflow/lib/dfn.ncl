@@ -9,20 +9,32 @@
 		| doc "Task definition"
 		= {
 			name    | String
-					    | doc "task name",
+					    | doc "task name"
+					    | default = "",
 			inputs  | doc "record of input parameter name and type"
 			        | {
 			             outbase | doc "basename of output file"
 			                     | String | default = "string",
 			            ..
-			          },
-			outputs | { .. } 
-			        | doc "record of output parameter name, type, and value",
+			          }
+			        | default = {},
+			outputs | { .. }
+			        | doc "record of output parameter name, type, and value"
+			        | default = {},
 			exec    | String
 			        | doc "command line program and arguments"
 			        | default = "bash",
-			command | String 
-			        | doc "command to execute",
+			command | String
+			        | doc "command to execute"
+			        | default = "",
+			runtime | doc "runtime resource requirements"
+			        | {
+			             cpu | Number | default = 1,
+			             memory | Number | default = 2048,
+			             disk | Number | default = 1024,
+			            ..
+			          }
+			        | default = {},
 			..
 		},
 
@@ -33,7 +45,8 @@
 		| doc "Workflow definition"
 		= {
 			name    | String
-			        | doc "workflow name",
+			        | doc "workflow name"
+			        | default = "",
 			# inputs  | doc "record of input parameter names and types"
 			#         | {
 			#             outbase | doc "basename of output file"
@@ -41,11 +54,14 @@
 			#             ..
 			#           },
 			depends | Array CompiledTask
-			        | doc "task dependencies",
-			steps   | { .. } 
-			        | doc "record of tasks to call and their inputs",
-			outputs | { .. } 
-			        | doc "record of output variable types and sources",
+			        | doc "task dependencies"
+			        | default = [],
+			steps   | { .. }
+			        | doc "record of tasks to call and their inputs"
+			        | default = {},
+			outputs | { .. }
+			        | doc "record of output variable types and sources"
+			        | default = {},
 			..
 		},
 }
