@@ -8,3 +8,5 @@ Workflow Language][cwl].
 [nickel]: https://nickel-lang.org/
 [cwl]: https://www.commonwl.org/
 
+See `nix/README.md` and `nickel/README.md` for details.
+
