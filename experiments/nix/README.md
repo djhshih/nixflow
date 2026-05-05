@@ -2,7 +2,22 @@
 
 ## Purpose
 
-Explore whether Nix can be used to generate CWL files for running workflows.
+This codebase evaluates different strategies for using Nix to generate CWL (Common Workflow Language) files for running workflows. It explores how Nix's declarative package management and derivation system can be leveraged to create portable, reproducible workflow definitions.
+
+## Usage
+
+Each approach is implemented in a separate directory:
+
+- `VarDef/` - Uses CWL command line arguments to pass inputs
+- `EnvDef/` - Uses CWL environmental variables to pass inputs  
+- `WorkDir/` - Uses CWL InitialWorkDirRequirement to embed scripts
+
+To build and run an example:
+
+```bash
+cd VarDef  # or EnvDef, WorkDir
+make
+```
 
 ## Approaches
 
